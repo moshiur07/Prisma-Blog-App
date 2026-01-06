@@ -5,6 +5,8 @@ import { UserRole } from "../../types";
 
 const router = Router();
 
+router.get("/",postController.getAllPosts)
+
 router.post("/", guard(UserRole.USER), postController.createPost)
 
 

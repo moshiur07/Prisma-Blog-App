@@ -1,11 +1,11 @@
-import express, { Request, Response } from 'express';
+import express, { Application, Request, Response } from 'express';
 import { postRouter } from './modules/posts/post.routes';
 import { toNodeHandler } from "better-auth/node";
 import { auth } from './lib/auth';
 import cors from "cors";
 
 
-const app = express()
+const app:Application = express()
 
 app.use(cors(
     {
