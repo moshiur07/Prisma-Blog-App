@@ -5,9 +5,10 @@ import { UserRole } from "../../types";
 
 const router = Router();
 
-router.get("/",postController.getAllPosts)
+router.get("/", postController.getAllPosts);
 
-router.post("/", guard(UserRole.USER), postController.createPost)
+router.post("/", guard(UserRole.USER), postController.createPost);
 
+router.get("/:postId", postController.getPostById);
 
-export const postRouter = router
+export const postRouter = router;
