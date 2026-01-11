@@ -1,4 +1,8 @@
-import { Post, postStatus } from "../../../generated/prisma/client";
+import {
+  commentStatus,
+  Post,
+  postStatus,
+} from "../../../generated/prisma/client";
 import { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 
@@ -84,7 +88,6 @@ const getAllPosts = async ({
     andConditions.push({ authorId });
   }
 
-  console.log(sortBy, sortOrder);
   const allPosts = await prisma.post.findMany({
     skip: skip,
     take: limit,
@@ -92,6 +95,9 @@ const getAllPosts = async ({
       AND: andConditions,
     },
     orderBy: [sortBy ? { [sortBy]: sortOrder } : { createdAt: "desc" }],
+    include: {
+      _count: { select: { comments: true } },
+    },
   });
 
   const count = await prisma.post.count();
@@ -108,6 +114,28 @@ const getPostById = async (id: string) => {
     const result = await prisma.post.findUnique({
       where: {
         id,
+      },
+      include: {
+        comments: {
+          orderBy: { createdAt: "desc" },
+          where: { parentId: null, status: commentStatus.APPROVED },
+          include: {
+            replies: {
+              orderBy: { createdAt: "asc" },
+              include: {
+                replies: {
+                  include: {
+                    replies: true,
+                  },
+                },
+              },
+              where: {
+                status: commentStatus.APPROVED,
+              },
+            },
+          },
+        },
+        _count: { select: { comments: true } },
       },
     });
     await prisma.post.update({
