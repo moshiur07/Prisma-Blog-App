@@ -7,12 +7,22 @@ const router = Router();
 
 router.get("/", postController.getAllPosts);
 
+router.get("/:postId", postController.getPostById);
+
 router.get("/author/:authorId", postController.getPostByAuthor);
 
 router.post("/", guard(UserRole.USER), postController.createPost);
 
-//  todo : get posts by author and update post routes
+router.patch(
+  "/:postId",
+  guard(UserRole.USER, UserRole.ADMIN),
+  postController.updatePost
+);
 
-router.get("/:postId", postController.getPostById);
+router.delete(
+  "/:postId",
+  guard(UserRole.USER, UserRole.ADMIN),
+  postController.deletePost
+);
 
 export const postRouter = router;

@@ -1,6 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
 import { postService } from "./post.service";
 import { postStatus } from "../../../generated/prisma/enums";
+import { UserRole } from "../../types";
 
 const createPost = async (req: Request, res: Response) => {
   const userId = req.user?.id;
@@ -106,9 +107,64 @@ const getPostByAuthor: RequestHandler = async (req, res) => {
     console.log(err);
   }
 };
+
+const updatePost = async (req: Request, res: Response) => {
+  const { postId } = req.params;
+  const user = req.user;
+  if (!user) throw new Error("Unauthorized");
+
+  const isAdmin = user.role === UserRole.ADMIN;
+
+  try {
+    const result = await postService.updatePost(
+      postId as string,
+      req.body,
+      user?.id as string,
+      isAdmin as boolean
+    );
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(404).json({
+      success: false,
+      message: err.message,
+    });
+    console.log(err);
+  }
+};
+const deletePost = async (req: Request, res: Response) => {
+  const { postId } = req.params;
+  const user = req.user;
+  if (!user) throw new Error("Unauthorized");
+
+  const isAdmin = user.role === UserRole.ADMIN;
+
+  try {
+    const result = await postService.deletePost(
+      postId as string,
+      user?.id as string,
+      isAdmin as boolean
+    );
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(404).json({
+      success: false,
+      message: err.message,
+    });
+    console.log(err);
+  }
+};
+
 export const postController = {
   createPost,
   getAllPosts,
   getPostById,
   getPostByAuthor,
+  updatePost,
+  deletePost,
 };
