@@ -89,8 +89,26 @@ const getPostById: RequestHandler = async (req, res) => {
     console.log(err);
   }
 };
+
+const getPostByAuthor: RequestHandler = async (req, res) => {
+  const { authorId } = req.params;
+  try {
+    const result = await postService.getPostByAuthor(authorId as string);
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(404).json({
+      success: false,
+      message: err.message,
+    });
+    console.log(err);
+  }
+};
 export const postController = {
   createPost,
   getAllPosts,
   getPostById,
+  getPostByAuthor,
 };

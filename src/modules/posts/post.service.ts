@@ -148,8 +148,27 @@ const getPostById = async (id: string) => {
   });
   return result;
 };
+
+const getPostByAuthor = async (authorId: string) => {
+  const result = await prisma.post.findMany({
+    where: { authorId },
+    include: {
+      _count: { select: { comments: true } },
+    },
+  });
+
+  const count = await prisma.post.aggregate({
+    where: { authorId },
+    _count: {
+      id: true,
+    },
+  });
+  return { count, result };
+};
+
 export const postService = {
   createPost,
   getAllPosts,
   getPostById,
+  getPostByAuthor,
 };

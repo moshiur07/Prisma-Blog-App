@@ -23,11 +23,18 @@ router.patch(
   commentController.updateComment
 );
 
+router.patch(
+  "/:commentId/moderate",
+  guard(UserRole.ADMIN),
+  commentController.moderateComment
+);
+
 router.delete(
   "/:commentId",
   guard(UserRole.USER, UserRole.ADMIN),
   commentController.deleteComment
 );
+
 router.post(
   "/",
   guard(UserRole.USER, UserRole.ADMIN),
