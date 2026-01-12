@@ -5,6 +5,7 @@ import {
 } from "../../../generated/prisma/client";
 import { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
+import { UserRole } from "../../types";
 
 const createPost = async (
   data: Omit<Post, "id" | "createdAt" | "updatedAt" | "authorId">,
@@ -218,6 +219,43 @@ const deletePost = async (
   });
 };
 
+const getStats = async () => {
+  return await prisma.$transaction(async (tx) => {
+    const [
+      totalPosts,
+      featuredPosts,
+      draftPosts,
+      publishedPosts,
+      archivedPosts,
+      totalComments,
+      totalUsers,
+      adminCount,
+      userCount,
+    ] = await Promise.all([
+      tx.post.count(),
+      tx.post.count({ where: { isFeatured: true } }),
+      tx.post.count({ where: { status: postStatus.DRAFT } }),
+      tx.post.count({ where: { status: postStatus.PUBLISHED } }),
+      tx.post.count({ where: { status: postStatus.ARCHIVED } }),
+      tx.comment.count(),
+      tx.user.count(),
+      tx.user.count({ where: { role: UserRole.ADMIN } }),
+      tx.user.count({ where: { role: UserRole.USER } }),
+    ]);
+    return {
+      totalPosts,
+      featuredPosts,
+      draftPosts,
+      publishedPosts,
+      archivedPosts,
+      totalComments,
+      totalUsers,
+      adminCount,
+      userCount,
+    };
+  });
+};
+
 export const postService = {
   createPost,
   getAllPosts,
@@ -225,4 +263,5 @@ export const postService = {
   getPostByAuthor,
   updatePost,
   deletePost,
+  getStats,
 };

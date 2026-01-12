@@ -11,6 +11,8 @@ router.get("/:postId", postController.getPostById);
 
 router.get("/author/:authorId", postController.getPostByAuthor);
 
+router.get("/admin/stats", guard(UserRole.ADMIN), postController.getStats);
+
 router.post("/", guard(UserRole.USER), postController.createPost);
 
 router.patch(
