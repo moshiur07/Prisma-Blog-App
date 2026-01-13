@@ -1,9 +1,9 @@
-import { Request, RequestHandler, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { postService } from "./post.service";
 import { postStatus } from "../../../generated/prisma/enums";
 import { UserRole } from "../../types";
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user?.id;
   try {
     const result = await postService.createPost(req.body, userId as string);
@@ -12,11 +12,7 @@ const createPost = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err: any) {
-    res.status(404).json({
-      success: false,
-      message: err.message,
-    });
-    console.log(err);
+    next(err);
   }
 };
 

@@ -151,20 +151,22 @@ const getPostById = async (id: string) => {
 };
 
 const getPostByAuthor = async (authorId: string) => {
-  const result = await prisma.post.findMany({
-    where: { authorId },
-    include: {
-      _count: { select: { comments: true } },
-    },
-  });
+  return await prisma.$transaction(async (prisma) => {
+    const result = await prisma.post.findMany({
+      where: { authorId },
+      include: {
+        _count: { select: { comments: true } },
+      },
+    });
 
-  const count = await prisma.post.aggregate({
-    where: { authorId },
-    _count: {
-      id: true,
-    },
+    const count = await prisma.post.aggregate({
+      where: { authorId },
+      _count: {
+        id: true,
+      },
+    });
+    return { count, result };
   });
-  return { count, result };
 };
 
 const updatePost = async (
