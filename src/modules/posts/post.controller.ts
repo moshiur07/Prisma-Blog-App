@@ -104,7 +104,7 @@ const getPostByAuthor: RequestHandler = async (req, res) => {
   }
 };
 
-const updatePost = async (req: Request, res: Response) => {
+const updatePost = async (req: Request, res: Response, next: NextFunction) => {
   const { postId } = req.params;
   const user = req.user;
   if (!user) throw new Error("Unauthorized");
@@ -116,18 +116,14 @@ const updatePost = async (req: Request, res: Response) => {
       postId as string,
       req.body,
       user?.id as string,
-      isAdmin as boolean
+      isAdmin as boolean,
     );
     res.status(200).json({
       success: true,
       data: result,
     });
   } catch (err: any) {
-    res.status(404).json({
-      success: false,
-      message: err.message,
-    });
-    console.log(err);
+    next(err);
   }
 };
 const deletePost = async (req: Request, res: Response) => {
@@ -141,7 +137,7 @@ const deletePost = async (req: Request, res: Response) => {
     const result = await postService.deletePost(
       postId as string,
       user?.id as string,
-      isAdmin as boolean
+      isAdmin as boolean,
     );
     res.status(200).json({
       success: true,
